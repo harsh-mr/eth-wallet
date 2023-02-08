@@ -228,7 +228,7 @@ export async function naiveProof(input: Object, amount: string, recepient: strin
     let tx;
 
     if (calldata) {
-        console.log(otp.address)
+        // console.log(otp.address)
         console.log(`recepient: ${recepient} amount: ${amount}`)
 
         const tx = await scw.zkProof(calldata[0], calldata[1], calldata[2], calldata[3], ethers.utils.parseEther(amount), recepient)
