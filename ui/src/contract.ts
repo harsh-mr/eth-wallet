@@ -35,7 +35,12 @@ export async function connectContract(addr: string) {
     
 
     const { ethereum } = window;
-		let root = localStorage.getItem("MerkleRoot");
+		let root1 = (localStorage.getItem("MerkleRoot"));
+        let root = BigInt(root1);
+        console.log(root,typeof(root))
+
+        // console.log(root);
+        // let root  = BigInt(2969605364619292656752330573544450919744795437254059361867215089577272985436);
 
     let provider = new ethers.providers.Web3Provider(ethereum);
     let signer = provider.getSigner();
@@ -104,15 +109,21 @@ export async function setRootAndVerifier(smartWalletAPI: MyWalletApi, aaProvier:
 
     let root = localStorage.getItem("MerkleRoot");
     
+    console.log(root,typeof(root))
+
     root = root!==null? root: '123'
+    //  root = root!==null? root: BigInt(123)
+
 
     console.log(`root here: ${root}`)
-    console.log(`data: ${scw.interface.encodeFunctionData('setMerkleRootAndVerifier', [root, address.Verifier])}`)
+    console.log(address.Verifier)
+    // console.log(`data: ${scw.interface.encodeFunctionData('setMerkleRootAndVerifier', [root, address.Verifier])}`)
 
-    
+    let data1 =  scw.interface.encodeFunctionData('setMerkleRootAndVerifier', [BigInt(root), address.Verifier])
+    console.log(`data1: ${data1}`)
     const op = await smartWalletAPI.createSignedUserOp({
         target: await aaSigner.getAddress(),
-        data: scw.interface.encodeFunctionData('setMerkleRootAndVerifier', [root, address.Verifier])
+        data: scw.interface.encodeFunctionData("setMerkleRootAndVerifier", [BigInt(root), address.Verifier])
     })
     console.log("op: ")
     console.log(op)
@@ -141,7 +152,7 @@ export async function getAaParams()
 
     const ownerAddress = await signer.getAddress();
 
-    const walletAddress = await MyWalletDeployer.getDeploymentAddress(ENTRYPOINT_ADDR, ownerAddress, root, 0)
+    const walletAddress = await MyWalletDeployer.getDeploymentAddress(ENTRYPOINT_ADDR, ownerAddress, root)
 
     console.log('--- end deploying MyWalletDeployer contract ---')
 
@@ -201,7 +212,8 @@ export async function deployOTP(root: BigInt) {
 
 export async function naiveProof(input: Object, amount: string, recepient: string) {
     let root = localStorage.getItem("MerkleRoot");
-    let {smartWalletAPI, httpRpcClient, aaProvier} = await getAaParams(root);
+    console.log(root,typeof(root))
+    let {smartWalletAPI, httpRpcClient, aaProvier} = await getAaParams();
     
     const aaSigner = aaProvier.getSigner()
 

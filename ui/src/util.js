@@ -85,11 +85,25 @@ export async function generateMerkleTree() {
       console.log(err);
     }
     console.log("Hashes on IPFS", fileData)
-    let IPFS_CIDS = localStorage.getItem("IPFS_CIDS");
-    if(!IPFS_CIDS){
-        IPFS_CIDS = [];
+    let IPFS_CIDS 
+    if(localStorage.getItem("IPFS_CIDS")==null){
+        console.log("yes")
+        IPFS_CIDS = new Array();
+        console.log(Array.isArray(IPFS_CIDS))
+        // console.log(typeof(IPFS_CIDS))
+
     }
-    localStorage.setItem("IPFS_CIDS", IPFS_CIDS.push(fileData));
+    else{
+        IPFS_CIDS = JSON.parse(localStorage.getItem("IPFS_CIDS")  || "[]");
+
+        console.log('again',Array.isArray(IPFS_CIDS))
+
+        console.log(typeof(IPFS_CIDS))
+    }
+    IPFS_CIDS.push(fileData)
+    console.log('not again',Array.isArray(IPFS_CIDS))
+
+    localStorage.setItem("IPFS_CIDS", JSON.stringify(IPFS_CIDS));
     localStorage.setItem("OTPhashes", hashes);
     localStorage.setItem("MerkleRoot", root);
 
