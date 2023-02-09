@@ -36,7 +36,8 @@ export default function Deploy() {
         
         
         let {smartWalletAPI, httpRpcClient, aaProvier} = await getAaParams();
-        // await setRootAndVerifier(smartWalletAPI, aaProvier)
+        console.log('aaprovider',aaProvier)
+        await setRootAndVerifier(smartWalletAPI, aaProvier)
         setScwAddress(await aaProvier.getSigner().getAddress())
         setDeploying(false);
         setDeployed(true);

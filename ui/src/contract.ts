@@ -23,6 +23,7 @@ let otp: ethers.Contract;
 
 const ENTRYPOINT_ADDR = '0x2167fA17BA3c80Adee05D98F0B55b666Be6829d6'
 const MY_WALLET_DEPLOYER = address.MyWalletDeployer
+const ABI = [{"inputs":[{"internalType":"contract IEntryPoint","name":"anEntryPoint","type":"address"},{"internalType":"address","name":"anOwner","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"oldEntryPoint","type":"address"},{"indexed":true,"internalType":"address","name":"newEntryPoint","type":"address"}],"name":"EntryPointChanged","type":"event"},{"inputs":[],"name":"addDeposit","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[],"name":"entryPoint","outputs":[{"internalType":"contract IEntryPoint","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"dest","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"},{"internalType":"bytes","name":"func","type":"bytes"}],"name":"exec","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address[]","name":"dest","type":"address[]"},{"internalType":"bytes[]","name":"func","type":"bytes[]"}],"name":"execBatch","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"dest","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"},{"internalType":"bytes","name":"func","type":"bytes"}],"name":"execFromEntryPoint","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"getDeposit","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"lastUsedTime","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"nonce","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"root","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_root","type":"uint256"},{"internalType":"address","name":"_verifier","type":"address"}],"name":"setMerkleRootAndVerifier","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256[2]","name":"a","type":"uint256[2]"},{"internalType":"uint256[2][2]","name":"b","type":"uint256[2][2]"},{"internalType":"uint256[2]","name":"c","type":"uint256[2]"},{"internalType":"uint256[2]","name":"input","type":"uint256[2]"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"testTransfer","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address payable","name":"dest","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transfer","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newEntryPoint","type":"address"}],"name":"updateEntryPoint","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"components":[{"internalType":"address","name":"sender","type":"address"},{"internalType":"uint256","name":"nonce","type":"uint256"},{"internalType":"bytes","name":"initCode","type":"bytes"},{"internalType":"bytes","name":"callData","type":"bytes"},{"internalType":"uint256","name":"callGasLimit","type":"uint256"},{"internalType":"uint256","name":"verificationGasLimit","type":"uint256"},{"internalType":"uint256","name":"preVerificationGas","type":"uint256"},{"internalType":"uint256","name":"maxFeePerGas","type":"uint256"},{"internalType":"uint256","name":"maxPriorityFeePerGas","type":"uint256"},{"internalType":"bytes","name":"paymasterAndData","type":"bytes"},{"internalType":"bytes","name":"signature","type":"bytes"}],"internalType":"struct UserOperation","name":"userOp","type":"tuple"},{"internalType":"bytes32","name":"requestId","type":"bytes32"},{"internalType":"address","name":"aggregator","type":"address"},{"internalType":"uint256","name":"missingWalletFunds","type":"uint256"}],"name":"validateUserOp","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"verifierAddr","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address payable","name":"withdrawAddress","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"withdrawDepositTo","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256[2]","name":"a","type":"uint256[2]"},{"internalType":"uint256[2][2]","name":"b","type":"uint256[2][2]"},{"internalType":"uint256[2]","name":"c","type":"uint256[2]"},{"internalType":"uint256[2]","name":"d","type":"uint256[2]"},{"internalType":"uint256","name":"value","type":"uint256"},{"internalType":"address","name":"dest","type":"address"}],"name":"zkProof","outputs":[],"stateMutability":"nonpayable","type":"function"},{"stateMutability":"payable","type":"receive"}]
 
 const providerConfig = {
     entryPointAddress: ENTRYPOINT_ADDR,
@@ -105,7 +106,7 @@ export async function setRootAndVerifier(smartWalletAPI: MyWalletApi, aaProvier:
 
     const aaSigner = aaProvier.getSigner()
 
-    const scw = new ethers.ContractFactory(MyWallet__factory.abi, MyWallet__factory.bytecode);
+    const scw = new ethers.ContractFactory(ABI, MyWallet__factory.bytecode);
 
     let root = localStorage.getItem("MerkleRoot");
     
@@ -119,18 +120,19 @@ export async function setRootAndVerifier(smartWalletAPI: MyWalletApi, aaProvier:
     console.log(address.Verifier)
     // console.log(`data: ${scw.interface.encodeFunctionData('setMerkleRootAndVerifier', [root, address.Verifier])}`)
 
-    let data1 =  scw.interface.encodeFunctionData('setMerkleRootAndVerifier', [BigInt(root), address.Verifier])
+    let data1 =  scw.interface.encodeFunctionData('setMerkleRootAndVerifier', [root, address.Verifier])
     console.log(`data1: ${data1}`)
+    console.log("a",await aaSigner.getAddress())
     const op = await smartWalletAPI.createSignedUserOp({
         target: await aaSigner.getAddress(),
-        data: scw.interface.encodeFunctionData("setMerkleRootAndVerifier", [BigInt(root), address.Verifier])
+        data: scw.interface.encodeFunctionData("setMerkleRootAndVerifier", [root, address.Verifier])
     })
     console.log("op: ")
     console.log(op)
     let tx = await aaProvier.httpRpcClient.sendUserOpToBundler(op)
         
     console.log(`here`)
-    console.log(tx)
+    // console.log(tx)
 }
 
 export async function getAaParams()
@@ -217,8 +219,9 @@ export async function naiveProof(input: Object, amount: string, recepient: strin
     
     const aaSigner = aaProvier.getSigner()
 
-    const scw = new ethers.Contract('0xA094a2Dc2B363f934DE3858a56dF86Cd117a49ef', MyWallet__factory.abi, aaSigner)
 
+    const scw = new ethers.Contract('0xA094a2Dc2B363f934DE3858a56dF86Cd117a49ef',ABI, aaSigner)
+    console.log('abi',MyWallet__factory.abi);
     
     console.log(`amount: ${amount} recepient: ${recepient}`)
 //ZK Proof being generated
